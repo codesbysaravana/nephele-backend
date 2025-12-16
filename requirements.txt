@@ -1,0 +1,12 @@
+fastapi 
+uvicorn
+python-multipart
+openai 
+python-dotenv
+gtts 
+pydantic 
+groq
+pydantic
+PyPDF2
+python-docx
+pydantic-settings

@@ -1,0 +1,13 @@
+import os
+from pathlib import Path
+import sqlite3
+
+# Documents DB
+DB_PATH = os.getenv("DB_PATH", "/data/documents.db")
+Path(os.path.dirname(DB_PATH)).mkdir(parents=True, exist_ok=True)
+conn_docs = sqlite3.connect(DB_PATH)
+
+# Attendance DB
+ATTENDANCE_DB_PATH = os.getenv("ATTENDANCE_DB_PATH", "/data/attendance.db")
+Path(os.path.dirname(ATTENDANCE_DB_PATH)).mkdir(parents=True, exist_ok=True)
+conn_attendance = sqlite3.connect(ATTENDANCE_DB_PATH)

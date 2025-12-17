@@ -6,7 +6,8 @@ python-dotenv
 gtts 
 pydantic 
 groq
-pydantic
 PyPDF2
 python-docx
 pydantic-settings
+pdfplumber
+pyttsx3

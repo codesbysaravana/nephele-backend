@@ -1,23 +1,21 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException, Body, Form, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, Response, JSONResponse, FileResponse
-
 from pydantic import BaseModel
 from gtts import gTTS
-
-from helpers.tts_helpers import generate_greeting_tts
-
 from openai import OpenAI
-
+from dotenv import load_dotenv
+from openai import OpenAI
 import tempfile, subprocess, os, json
 import uuid
 import asyncio
-
+import os
+import logging
+import traceback
+from helpers.tts_helpers import generate_greeting_tts
 from teaching import router as teaching_router
 
-from dotenv import load_dotenv
 load_dotenv()
-
 client = OpenAI()
 
 app = FastAPI()
@@ -52,6 +50,21 @@ Your style should be:
 
 Always respond in a clear, concise, and empathetic tone.
 """
+
+
+# =========================
+# LOGGING AND UTILS
+# =========================
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+)
+logger = logging.getLogger(__name__)
+
+AUDIO_DIR = "audio"
+os.makedirs(AUDIO_DIR, exist_ok=True)
+
 
 # =========================
 # CLASS FOR QR ENDPOINT
@@ -239,6 +252,56 @@ async def agent_memory(file: UploadFile = File(...), history: str = Form(...)):
     # TTS
     audio_bytes = speak_text(assistant_text)
     return Response(content=audio_bytes, media_type="audio/wav")
+
+
+
+# =========================
+# COMPERE ENDPOINT
+# =========================
+
+
+@app.post("/tts")
+async def text_to_speech(file: UploadFile = File(...)):
+    logger.info("➡️ /tts request received")
+
+    try:
+        logger.info("📄 Reading uploaded file")
+        content = await file.read()
+        text = content.decode("utf-8").strip()
+
+        if not text:
+            raise HTTPException(status_code=400, detail="Text file is empty")
+
+        logger.info(f"📝 Text length: {len(text)} characters")
+
+        audio_id = str(uuid.uuid4())
+        audio_path = f"{AUDIO_DIR}/{audio_id}.wav"
+
+        logger.info("🔊 Calling OpenAI TTS API")
+
+        with client.audio.speech.with_streaming_response.create(
+            model="gpt-4o-mini-tts",
+            voice="alloy",
+            input=text,
+            timeout=30,  # IMPORTANT: prevent hanging forever
+        ) as response:
+            logger.info("⬇️ Streaming audio to file")
+            response.stream_to_file(audio_path)
+
+        logger.info(f"✅ Audio saved: {audio_path}")
+
+        return FileResponse(
+            audio_path,
+            media_type="audio/wav",
+            filename="speech.wav",
+        )
+
+    except Exception as e:
+        logger.error("🔥 ERROR during /tts processing")
+        logger.error(str(e))
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail="TTS generation failed")
+
 
 
 app.include_router(

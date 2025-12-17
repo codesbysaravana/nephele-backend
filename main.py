@@ -260,7 +260,7 @@ async def agent_memory(file: UploadFile = File(...), history: str = Form(...)):
 # =========================
 
 
-@app.post("/tts")
+@app.post("/compere")
 async def text_to_speech(file: UploadFile = File(...)):
     logger.info("➡️ /tts request received")
 

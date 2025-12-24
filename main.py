@@ -310,4 +310,8 @@ app.include_router(
     tags=["Teaching"]
 )
 
-app.include_router(interview_router)
+app.include_router(
+    interview_router,
+    prefix="/interview",
+    tags=["Interview"]
+)

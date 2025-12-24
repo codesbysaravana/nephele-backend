@@ -9,7 +9,6 @@ import uuid
 import json
 from datetime import datetime
 from fastapi import APIRouter, UploadFile, File, HTTPException
-
 from fastapi.responses import StreamingResponse
 import io
 import tempfile
@@ -22,22 +21,7 @@ load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # -------------------- APP --------------------
-router = APIRouter(
-    prefix="/interview",
-    tags=["Interview"]
-)
-
-router.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "https://nephele-frontend.vercel.app"
-    ],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
+router = APIRouter()
 # -------------------- STORAGE --------------------
 DATA_DIR = "data"
 os.makedirs(DATA_DIR, exist_ok=True)

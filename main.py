@@ -172,6 +172,13 @@ def speak_text(text: str) -> bytes:
 # =========================
 # ENDPOINTS
 # =========================
+@app.get("/")
+def root():
+    return {
+        "status": "ok",
+        "message": "Backend is running 🚀"
+    }
+
 @app.post("/voice")
 async def voice(file: UploadFile = File(...)):
     """STT endpoint: audio → text"""

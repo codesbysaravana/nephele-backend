@@ -5,7 +5,6 @@ from pydantic import BaseModel
 from gtts import gTTS
 from openai import OpenAI
 from dotenv import load_dotenv
-from openai import OpenAI
 import tempfile, subprocess, os, json
 import uuid
 import asyncio
@@ -14,6 +13,7 @@ import logging
 import traceback
 from helpers.tts_helpers import generate_greeting_tts
 from teaching import router as teaching_router
+from Interview import router as interview_router
 
 load_dotenv()
 client = OpenAI()
@@ -309,3 +309,5 @@ app.include_router(
     prefix="/teaching",
     tags=["Teaching"]
 )
+
+app.include_router(interview_router)
